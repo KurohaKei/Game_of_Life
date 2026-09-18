@@ -25,6 +25,25 @@ function setup () {
         }
 
     }
+    fitToScreen();
+}
+
+function fitToScreen() {
+    let canvasW = cols * resolution;
+    let canvasH = rows * resolution;
+
+    let scaleX = windowWidth / canvasW;
+    let scaleY = windowHeight / canvasH;
+
+    zoom = min(scaleX, scaleY) * 0.9;
+    zoom = constrain(zoom, 0.1, 5);
+
+    offsetX = (windowWidth - canvasW * zoom) / 2;
+    offsetY = (windowHeight - canvasH * zoom) / 2;
+}
+
+function windowResized() {
+    setTimeout(fitToScreen, 50);
 }
 
 let offsetX = 0;
@@ -96,8 +115,8 @@ function mousePressed() {
 
 function mouseDragged() {
     if (dragging) {
-        offsetX += mouseX - lastX;
-        offsetY += mouseY - lastY;
+        offsetX += (mouseX - lastX);
+        offsetY += (mouseY - lastY);
         lastX = mouseX;
         lastY = mouseY;
     }
@@ -124,8 +143,8 @@ function touchMoved() {
         let d = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
         zoom = constrain(pinchStartZoom * (d / pinchStartDist), 0.1, 5);
     } else if (dragging) {
-        offsetX += mouseX - lastX;
-        offsetY += mouseY - lastY;
+        offsetX += (mouseX - lastX);
+        offsetY += (mouseY - lastY);
         lastX = mouseX;
         lastY = mouseY;
     }
