@@ -11,10 +11,10 @@ function make2DArray (cols, rows) {
 let grid;
 let rows;
 let cols;
-let resolution = 20;
+let resolution = 10;
 
 function setup () {
-    createCanvas(600, 400);
+    createCanvas(1000, 1000);
     cols = width / resolution;
     rows = height / resolution;
 
@@ -28,14 +28,14 @@ function setup () {
 }
 
 function draw () {
-    background(0);
+    background('#0e1116');
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
             let x = i * resolution;
             let y = j * resolution;
             if (grid[i][j] == 1) {
-                fill(255);
+                fill('#6ee7b7');
                 stroke(0);
                 rect(x, y, resolution - 1, resolution - 1);
             }
@@ -58,10 +58,9 @@ function draw () {
 
             }
         }
-    }     
+    }    
+    grid = next; 
 }
-
-grid = next;
 
 function countNeighbors (grid, x, y) {
     let sum = 0;
