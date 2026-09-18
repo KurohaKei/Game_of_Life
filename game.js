@@ -13,9 +13,9 @@ let rows;
 let cols;
 
 function setup () {
-    resolution = 20;
-    cols = 40;
-    rows = 40;
+    resolution = 10;
+    cols = 200;
+    rows = 200;
     createCanvas(cols * resolution, rows * resolution);
 
     grid = make2DArray(cols, rows);
@@ -27,8 +27,16 @@ function setup () {
     }
 }
 
+let offsetX = 0;
+let offsetY = 0;
+let dragging = false;
+let lastX, lastY;
+
 function draw () {
     background('#0e1116');
+
+    push();
+    translate(offsetX, offsetY);
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
@@ -41,6 +49,8 @@ function draw () {
             }
         }
     }
+    pop();
+    
     let next = make2DArray(cols, rows);
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
@@ -62,6 +72,47 @@ function draw () {
     grid = next; 
 }
 
+function mousePressed() {
+    dragging = true;
+    lastX = mouseX;
+    lastY = mouseY;
+}
+
+function mouseDragged() {
+    if (dragging) {
+        offsetX += mouseX - lastX;
+        offsetY += mouseY - lastY;
+        lastX = mouseX;
+        lastY = mouseY;
+    }
+}
+
+function mouseReleased() {
+    dragging = false;
+}
+
+function touchStarted() {
+    dragging = true;
+    lastX = mouseX;
+    lastY = mouseY;
+    return false; // prevents default touch behavior (page scroll/zoom)
+}
+
+function touchMoved() {
+    if (dragging) {
+        offsetX += mouseX - lastX;
+        offsetY += mouseY - lastY;
+        lastX = mouseX;
+        lastY = mouseY;
+    }
+    return false;
+}
+
+function touchEnded() {
+    dragging = false;
+    return false;
+}
+
 function countNeighbors (grid, x, y) {
     let sum = 0;
     for (let i = -1; i < 2; i++) {
@@ -74,3 +125,4 @@ function countNeighbors (grid, x, y) {
     sum -= grid[x][y];
     return sum;
 }
+
