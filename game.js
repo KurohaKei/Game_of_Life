@@ -29,14 +29,18 @@ function setup () {
 
 let offsetX = 0;
 let offsetY = 0;
+let zoom = 1;
 let dragging = false;
 let lastX, lastY;
+let pinchStartDist = 0;
+let pinchStartZoom = 1;
 
 function draw () {
     background('#0e1116');
 
     push();
     translate(offsetX, offsetY);
+    scale(zoom);
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
@@ -72,6 +76,18 @@ function draw () {
     grid = next; 
 }
 
+// For desktop: zoom with mouse wheel, pan with mouse drag
+function mouseWheel(event) {
+    let prevZoom = zoom;
+    zoom -= event.delta * 0.001;
+    zoom = constrain(zoom, 0.1, 5);
+
+    offsetX = mouseX - (mouseX - offsetX) * (zoom / prevZoom);
+    offsetY = mouseY - (mouseY - offsetY) * (zoom / prevZoom);
+
+    return false;
+}
+
 function mousePressed() {
     dragging = true;
     lastX = mouseX;
@@ -92,14 +108,22 @@ function mouseReleased() {
 }
 
 function touchStarted() {
-    dragging = true;
-    lastX = mouseX;
-    lastY = mouseY;
-    return false; // prevents default touch behavior (page scroll/zoom)
+    if (touches.length === 2) {
+        pinchStartDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+        pinchStartZoom = zoom;
+    } else {
+        dragging = true;
+        lastX = mouseX;
+        lastY = mouseY;
+    }
+    return false;
 }
 
 function touchMoved() {
-    if (dragging) {
+    if (touches.length === 2) {
+        let d = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+        zoom = constrain(pinchStartZoom * (d / pinchStartDist), 0.1, 5);
+    } else if (dragging) {
         offsetX += mouseX - lastX;
         offsetY += mouseY - lastY;
         lastX = mouseX;
