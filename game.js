@@ -14,9 +14,9 @@ let cols;
 
 function setup () {
     resolution = 10;
-    cols = 200;
-    rows = 200;
-    createCanvas(cols * resolution, rows * resolution);
+    cols = 100;
+    rows = 100;
+    createCanvas(windowWidth, windowHeight);
 
     grid = make2DArray(cols, rows);
     for (let i = 0; i < cols; i++) {
@@ -43,6 +43,7 @@ function fitToScreen() {
 }
 
 function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
     setTimeout(fitToScreen, 50);
 }
 
