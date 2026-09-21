@@ -135,7 +135,7 @@ function toggleCellAt(mx, my) {
 
 function isUIElement(x, y) {
     const el = document.elementFromPoint(x, y);
-    return !!(el && (el.closest('#hud') || el.closest('#menu')));
+    return !!(el && (el.closest('#hud') || el.closest('.menu-overlay')));
 }
 
 // ---------- Mouse (desktop) ----------
