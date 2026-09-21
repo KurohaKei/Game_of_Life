@@ -309,3 +309,48 @@ function setupMenuUI() {
         toggleRun.textContent = isRunning ? '⏸ Pause' : '▶ Play';
     });
 }
+
+// ---------- Install / offline download ----------
+(function () {
+    const installBtn = document.getElementById('installBtn');
+    const installHint = document.getElementById('installHint');
+    if (!installBtn) return;
+
+    // Already running as an installed app? Keep the button hidden.
+    const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    let deferredPrompt = null;
+
+    // Android / Chrome / Edge: browser fires this when the app is installable
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+        installHint.style.display = 'none';
+    });
+
+    // iOS has no install prompt API, so show the button and explain manually
+    if (isIOS) installBtn.style.display = 'block';
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        } else if (isIOS) {
+            installHint.style.display = 'block';
+        }
+    });
+})();
