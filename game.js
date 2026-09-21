@@ -24,6 +24,7 @@ let lastX, lastY, mouseDownX, mouseDownY, hasDragged = false;
 let pinchStartDist = 0, pinchStartZoom = 1;
 
 function setup () {
+    console.log("setup() called");
     createCanvas(windowWidth, windowHeight);
     cols = 100;
     rows = 100;
@@ -198,8 +199,9 @@ function touchEnded() {
 
 // ---------- Menu / HUD wiring ----------
 function setupMenuUI() {
+    console.log("setupMenuUI running");
     const modeRandom = document.getElementById('modeRandom');
-    const modeBlank = document.getElementById('modeBlank');
+    console.log("modeRandom found:", modeRandom);
     const gridSize = document.getElementById('gridSize');
     const speedSlider = document.getElementById('speedSlider');
     const speedVal = document.getElementById('speedVal');
