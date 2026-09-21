@@ -143,55 +143,82 @@
   cursor: pointer;
   font-size: 14px;
 }
+
+.secondary-btn {
+  background: #1c2128;
+  color: #e9edf2;
+  border: 1px solid #2c3542;
+}
 </style>
 
 </head>
 <body>
 
-    <div id="menu" class="menu-overlay">
-      <div class="menu-panel">
-        <h1>The Game of Life</h1>
-
-        <div class="menu-group">
-          <label>Start Mode</label>
-          <div class="btn-row">
-            <button id="modeRandom" class="mode-btn active" data-mode="random">Random</button>
-            <button id="modeBlank" class="mode-btn" data-mode="blank">Blank</button>
-          </div>
-        </div>
-
-        <div class="menu-group">
-          <label for="gridSize">Grid Size</label>
-          <select id="gridSize">
-            <option value="50">Small (50×50)</option>
-            <option value="100" selected>Medium (100×100)</option>
-            <option value="150">Large (150×150)</option>
-          </select>
-        </div>
-
-        <div class="menu-group">
-          <label for="speedSlider">Speed: <span id="speedVal">10</span> fps</label>
-          <input type="range" id="speedSlider" min="1" max="60" value="10">
-        </div>
-
-        <div class="menu-group color-row">
-          <div>
-            <label for="cellColor">Cell Color</label>
-            <input type="color" id="cellColor" value="#6ee7b7">
-          </div>
-          <div>
-            <label for="bgColorInput">Background</label>
-            <input type="color" id="bgColorInput" value="#0e1116">
-          </div>
-        </div>
-
-        <button id="playBtn" class="play-btn">▶ Play</button>
-      </div>
+    <!-- MAIN MENU -->
+  <div id="mainMenu" class="menu-overlay">
+    <div class="menu-panel">
+      <h1>The Game of Life</h1>
+      <button id="newGameBtn" class="play-btn">New Game</button>
+      <button id="resumeBtn" class="play-btn secondary-btn" style="display:none;">Resume Game</button>
+      <button id="settingsBtn" class="play-btn secondary-btn">Settings</button>
     </div>
+  </div>
+
+  <!-- NEW GAME MENU -->
+  <div id="newGameMenu" class="menu-overlay" style="display:none;">
+    <div class="menu-panel">
+      <h1>New Game</h1>
+
+      <div class="menu-group">
+        <label>Start Mode</label>
+        <div class="btn-row">
+          <button id="modeRandom" class="mode-btn active" data-mode="random">Random</button>
+          <button id="modeBlank" class="mode-btn" data-mode="blank">Blank</button>
+        </div>
+      </div>
+
+      <div class="menu-group">
+        <label for="gridSize">Grid Size</label>
+        <select id="gridSize">
+          <option value="50">Small (50×50)</option>
+          <option value="100" selected>Medium (100×100)</option>
+          <option value="150">Large (150×150)</option>
+        </select>
+      </div>
+
+      <button id="playBtn" class="play-btn">▶ Start Game</button>
+      <button id="backFromNewGame" class="play-btn secondary-btn">Back</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS MENU -->
+  <div id="settingsMenu" class="menu-overlay" style="display:none;">
+    <div class="menu-panel">
+      <h1>Settings</h1>
+
+      <div class="menu-group">
+        <label for="speedSlider">Speed: <span id="speedVal">10</span> fps</label>
+        <input type="range" id="speedSlider" min="1" max="60" value="10">
+      </div>
+
+      <div class="menu-group color-row">
+        <div>
+          <label for="cellColor">Cell Color</label>
+          <input type="color" id="cellColor" value="#6ee7b7">
+        </div>
+        <div>
+          <label for="bgColorInput">Background</label>
+          <input type="color" id="bgColorInput" value="#0e1116">
+        </div>
+      </div>
+
+      <button id="backFromSettings" class="play-btn secondary-btn">Back</button>
+    </div>
+  </div>
 
   <div class="hud" id="hud" style="display:none;">
-    <button id="menuBtn">☰ Menu</button>
-    <button id="toggleRun">▶ Play</button>
+    <button id="menuBtn">☰ Back to Menu</button>
+    <button id="toggleRun">⏸ Pause</button>
   </div>
 
 <script src="/p5.min.js"></script>  

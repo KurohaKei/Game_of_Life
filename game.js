@@ -210,9 +210,7 @@ function touchEnded() {
 
 // ---------- Menu / HUD wiring ----------
 function setupMenuUI() {
-    console.log("setupMenuUI running");
     const modeRandom = document.getElementById('modeRandom');
-    console.log("modeRandom found:", modeRandom);
     const modeBlank = document.getElementById('modeBlank');
     const gridSize = document.getElementById('gridSize');
     const speedSlider = document.getElementById('speedSlider');
@@ -220,11 +218,46 @@ function setupMenuUI() {
     const cellColorInput = document.getElementById('cellColor');
     const bgColorInput = document.getElementById('bgColorInput');
     const playBtn = document.getElementById('playBtn');
-    const menu = document.getElementById('menu');
     const hud = document.getElementById('hud');
     const menuBtn = document.getElementById('menuBtn');
     const toggleRun = document.getElementById('toggleRun');
 
+    const mainMenu = document.getElementById('mainMenu');
+    const newGameMenu = document.getElementById('newGameMenu');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const backFromNewGame = document.getElementById('backFromNewGame');
+    const backFromSettings = document.getElementById('backFromSettings');
+
+    function showScreen(screen) {
+        mainMenu.style.display = 'none';
+        newGameMenu.style.display = 'none';
+        settingsMenu.style.display = 'none';
+        hud.style.display = 'none';
+        screen.style.display = 'flex';
+    }
+
+    function showMainMenu() {
+        resumeBtn.style.display = started ? 'block' : 'none';
+        showScreen(mainMenu);
+    }
+
+    // --- Main menu navigation ---
+    newGameBtn.addEventListener('click', () => showScreen(newGameMenu));
+    settingsBtn.addEventListener('click', () => showScreen(settingsMenu));
+    resumeBtn.addEventListener('click', () => {
+        mainMenu.style.display = 'none';
+        newGameMenu.style.display = 'none';
+        settingsMenu.style.display = 'none';
+        hud.style.display = 'flex';
+    });
+
+    backFromNewGame.addEventListener('click', showMainMenu);
+    backFromSettings.addEventListener('click', showMainMenu);
+
+    // --- New Game screen ---
     modeRandom.addEventListener('click', () => {
         startMode = 'random';
         modeRandom.classList.add('active');
@@ -235,9 +268,6 @@ function setupMenuUI() {
         modeBlank.classList.add('active');
         modeRandom.classList.remove('active');
     });
-    speedSlider.addEventListener('input', () => {
-        speedVal.textContent = speedSlider.value;
-    });
 
     playBtn.addEventListener('click', () => {
         initGame(
@@ -247,16 +277,31 @@ function setupMenuUI() {
             cellColorInput.value,
             bgColorInput.value
         );
-        menu.style.display = 'none';
+        mainMenu.style.display = 'none';
+        newGameMenu.style.display = 'none';
+        settingsMenu.style.display = 'none';
         hud.style.display = 'flex';
         toggleRun.textContent = '▶ Play';
     });
 
+    // --- Settings screen ---
+    speedSlider.addEventListener('input', () => {
+        speedVal.textContent = speedSlider.value;
+        speed = parseInt(speedSlider.value, 10);
+        frameRate(speed);
+    });
+    cellColorInput.addEventListener('input', () => {
+        cellColor = cellColorInput.value;
+    });
+    bgColorInput.addEventListener('input', () => {
+        bgColor = bgColorInput.value;
+    });
+
+    // --- HUD ---
     menuBtn.addEventListener('click', () => {
         isRunning = false;
         toggleRun.textContent = '▶ Play';
-        menu.style.display = 'flex';
-        hud.style.display = 'none';
+        showMainMenu();
     });
 
     toggleRun.addEventListener('click', () => {
