@@ -73,6 +73,17 @@ function draw() {
     push();
     translate(offsetX, offsetY);
     scale(zoom);
+
+    if (!isRunning) {
+        stroke(255, 255, 255, 25);   // faint white, low alpha
+        noFill();
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                rect(i * resolution, j * resolution, resolution - 1, resolution - 1);
+            }
+        }
+    }
+
     fill(cellColor);
     stroke(0);
     for (let i = 0; i < cols; i++) {
