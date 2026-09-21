@@ -21,7 +21,7 @@ let isRunning = false;
 let offsetX = 0, offsetY = 0, zoom = 1;
 let dragging = false;
 let lastX, lastY, mouseDownX, mouseDownY, hasDragged = false;
-let pinchStartDist = 0, pinchStartZoom = 1;
+let pinchStartDist = 0, pinchStartZoom = 1, pinchWorldX = 0, pinchWorldY = 0;
 
 function setup () {
     console.log("setup() called");
@@ -175,8 +175,14 @@ function mouseReleased() {
 function touchStarted() {
     if (touches.length > 0 && isUIElement(touches[0].x, touches[0].y)) return true; // let UI handle it
     if (touches.length === 2) {
+        const mx = (touches[0].x + touches[1].x) / 2;
+        const my = (touches[0].y + touches[1].y) / 2;
         pinchStartDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
         pinchStartZoom = zoom;
+        // remember which grid point sits under the fingers
+        pinchWorldX = (mx - offsetX) / zoom;
+        pinchWorldY = (my - offsetY) / zoom;
+        dragging = false; // a pinch is not a drag or a tap
     } else {
         dragging = true;
         lastX = mouseX; lastY = mouseY;
@@ -188,9 +194,14 @@ function touchStarted() {
 
 function touchMoved() {
     if (touches.length > 0 && isUIElement(touches[0].x, touches[0].y)) return true;
-    if (touches.length === 2) {
-        let d = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+    if (touches.length === 2 && pinchStartDist > 0) {
+        const mx = (touches[0].x + touches[1].x) / 2;
+        const my = (touches[0].y + touches[1].y) / 2;
+        const d = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
         zoom = constrain(pinchStartZoom * (d / pinchStartDist), 0.1, 5);
+        // keep the same grid point under the fingers' midpoint
+        offsetX = mx - pinchWorldX * zoom;
+        offsetY = my - pinchWorldY * zoom;
     } else if (dragging) {
         if (dist(mouseX, mouseY, mouseDownX, mouseDownY) > 4) hasDragged = true;
         offsetX += (mouseX - lastX);

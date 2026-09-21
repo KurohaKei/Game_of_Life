@@ -1,4 +1,4 @@
-const CACHE = "gameoflife-v6"; // bump on every deploy
+const CACHE = "gameoflife-v7"; // bump on every deploy
 
 const FILES = [
   "/",
