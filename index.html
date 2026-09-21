@@ -46,6 +46,7 @@
     justify-content: space-between;
     padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
     pointer-events: none;
+    z-index: 10
   }
 
   .hud button {
@@ -147,51 +148,51 @@
 </head>
 <body>
 
-  <div id="menu" class="menu-overlay">
-    <div class="menu-panel">
-      <h1>The Game of Life</h1>
+    <div id="menu" class="menu-overlay">
+      <div class="menu-panel">
+        <h1>The Game of Life</h1>
 
-      <div class="menu-group">
-        <label>Start Mode</label>
-        <div class="btn-row">
-          <button id="modeRandom" class="mode-btn active" data-mode="random">Random</button>
-          <button id="modeBlank" class="mode-btn" data-mode="blank">Blank</button>
+        <div class="menu-group">
+          <label>Start Mode</label>
+          <div class="btn-row">
+            <button id="modeRandom" class="mode-btn active" data-mode="random">Random</button>
+            <button id="modeBlank" class="mode-btn" data-mode="blank">Blank</button>
+          </div>
         </div>
-      </div>
 
-      <div class="menu-group">
-        <label for="gridSize">Grid Size</label>
-        <select id="gridSize">
-          <option value="50">Small (50×50)</option>
-          <option value="100" selected>Medium (100×100)</option>
-          <option value="150">Large (150×150)</option>
-        </select>
-      </div>
-
-      <div class="menu-group">
-        <label for="speedSlider">Speed: <span id="speedVal">10</span> fps</label>
-        <input type="range" id="speedSlider" min="1" max="60" value="10">
-      </div>
-
-      <div class="menu-group color-row">
-        <div>
-          <label for="cellColor">Cell Color</label>
-          <input type="color" id="cellColor" value="#6ee7b7">
+        <div class="menu-group">
+          <label for="gridSize">Grid Size</label>
+          <select id="gridSize">
+            <option value="50">Small (50×50)</option>
+            <option value="100" selected>Medium (100×100)</option>
+            <option value="150">Large (150×150)</option>
+          </select>
         </div>
-        <div>
-          <label for="bgColorInput">Background</label>
-          <input type="color" id="bgColorInput" value="#0e1116">
-        </div>
-      </div>
 
-      <button id="playBtn" class="play-btn">▶ Play</button>
+        <div class="menu-group">
+          <label for="speedSlider">Speed: <span id="speedVal">10</span> fps</label>
+          <input type="range" id="speedSlider" min="1" max="60" value="10">
+        </div>
+
+        <div class="menu-group color-row">
+          <div>
+            <label for="cellColor">Cell Color</label>
+            <input type="color" id="cellColor" value="#6ee7b7">
+          </div>
+          <div>
+            <label for="bgColorInput">Background</label>
+            <input type="color" id="bgColorInput" value="#0e1116">
+          </div>
+        </div>
+
+        <button id="playBtn" class="play-btn">▶ Play</button>
+      </div>
     </div>
-  </div>
 
-<div class="hud" id="hud" style="display:none;">
-  <button id="menuBtn">☰ Menu</button>
-  <button id="toggleRun">▶ Play</button>
-</div>
+  <div class="hud" id="hud" style="display:none;">
+    <button id="menuBtn">☰ Menu</button>
+    <button id="toggleRun">▶ Play</button>
+  </div>
 
 <script src="/p5.min.js"></script>  
 <script src="/game.js"></script>

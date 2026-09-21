@@ -202,6 +202,7 @@ function setupMenuUI() {
     console.log("setupMenuUI running");
     const modeRandom = document.getElementById('modeRandom');
     console.log("modeRandom found:", modeRandom);
+    const modeBlank = document.getElementById('modeBlank');
     const gridSize = document.getElementById('gridSize');
     const speedSlider = document.getElementById('speedSlider');
     const speedVal = document.getElementById('speedVal');
