@@ -11,7 +11,7 @@ function make2DArray (cols, rows) {
 let grid;
 let rows, cols, resolution = 10;
 
-let cellColor = '#6ee7b7';
+let cellColor = '#2F5BFF';
 let bgColor = '#000000';
 let speed = 10;
 let startMode = 'random';
