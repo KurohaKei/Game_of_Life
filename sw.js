@@ -1,4 +1,4 @@
-const CACHE = "gameoflife-v15";
+const CACHE = "gameoflife-v16";
 
 const FILES = [
   "/",
