@@ -113,6 +113,21 @@
   width: 100%;
 }
 
+/* Grid size number box. user-select override is needed because body disables selection */
+.menu-group input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #2c3542;
+  background: #1c2128;
+  color: #e9edf2;
+  font-size: 16px;               /* 16px stops iOS from zooming on focus */
+  -webkit-user-select: text;
+  user-select: text;
+}
+.menu-group input[type="number"]:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 2px; }
+
 .color-row { display: flex; gap: 16px; }
 .color-row > div { flex: 1; }
 .color-row input[type="color"] {
@@ -169,6 +184,32 @@
 }
 .icon-btn:active { background: #262c36; }
 .icon-btn:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 2px; }
+
+/* ---------- Warning toast ---------- */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 32px);
+  transform: translateX(-50%) translateY(20px);
+  max-width: min(340px, 90vw);
+  box-sizing: border-box;
+  padding: 12px 16px;
+  background: #161b22;
+  border: 1px solid #6ee7b7;
+  border-radius: 10px;
+  color: #e9edf2;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 2000;              /* above menus and the loader */
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
 
 /* ---------- Loading screen ---------- */
 #loader {
@@ -342,12 +383,8 @@
       </div>
 
       <div class="menu-group">
-        <label for="gridSize">Grid Size</label>
-        <select id="gridSize">
-          <option value="50">Small (50×50)</option>
-          <option value="100" selected>Medium (100×100)</option>
-          <option value="150">Large (150×150)</option>
-        </select>
+        <label for="gridSize">Grid Size (1–300)</label>
+        <input type="number" id="gridSize" value="100" min="1" max="300" step="1" inputmode="numeric">
       </div>
 
       <button id="playBtn" class="play-btn">▶ Start Game</button>
@@ -392,6 +429,9 @@
     <button id="menuBtn">☰ Back to Menu</button>
     <button id="toggleRun">⏸ Pause</button>
   </div>
+
+  <!-- Warning toast (text is set from game.js) -->
+  <div id="toast" role="alert" aria-live="assertive"></div>
 
 <script src="/p5.min.js" onload="loaderStage('Starting up…')" onerror="loaderFail()"></script>
 <script src="/game.js" onerror="loaderFail()"></script>

@@ -12,7 +12,7 @@ let grid;
 let rows, cols, resolution = 10;
 
 let cellColor = '#6ee7b7';
-let bgColor = '#0e1116';
+let bgColor = '#000000';
 let speed = 10;
 let startMode = 'random';
 let started = false;
@@ -23,11 +23,48 @@ let dragging = false;
 let lastX, lastY, mouseDownX, mouseDownY, hasDragged = false;
 let pinchStartDist = 0, pinchStartZoom = 1, pinchWorldX = 0, pinchWorldY = 0;
 
+// ---------- Saved settings (localStorage) ----------
+const STORE_KEY = 'gol.settings';
+const MIN_GRID = 1;
+const MAX_GRID = 300;
+const DEFAULT_GRID = 100;
+const GRID_WARNING = 'Input more than 300 can make the game lag, Input converted to 300';
+const GRID_MIN_WARNING = 'Input less than 1 is not allowed, Input converted to 1';
+const GRID_INVALID_WARNING = 'Invalid input. Please enter a number from 1 to 300.';
+
+function loadSettings() {
+    try {
+        const s = JSON.parse(localStorage.getItem(STORE_KEY));
+        return (s && typeof s === 'object') ? s : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveSettings(data) {
+    try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch (e) {
+        // storage full or blocked (private mode): the game still works, just doesn't remember
+    }
+}
+
+let toastTimer = null;
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
+    t.onclick = () => { clearTimeout(toastTimer); t.classList.remove('show'); };
+}
+
 function setup () {
     console.log("setup() called");
     createCanvas(windowWidth, windowHeight);
-    cols = 100;
-    rows = 100;
+    cols = DEFAULT_GRID;
+    rows = DEFAULT_GRID;
     frameRate(speed);
     setupMenuUI();
     if (window.hideLoader) hideLoader();   // menu buttons work now, so drop the loading screen
@@ -136,7 +173,7 @@ function toggleCellAt(mx, my) {
 
 function isUIElement(x, y) {
     const el = document.elementFromPoint(x, y);
-    return !!(el && (el.closest('#hud') || el.closest('.menu-overlay')));
+    return !!(el && (el.closest('#hud') || el.closest('.menu-overlay') || el.closest('#toast')));
 }
 
 // ---------- Mouse (desktop) ----------
@@ -243,6 +280,60 @@ function setupMenuUI() {
     const backFromNewGame = document.getElementById('backFromNewGame');
     const backFromSettings = document.getElementById('backFromSettings');
 
+    // --- Restore saved settings ---
+    const saved = loadSettings();
+    const isHex = (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+
+    let lastGoodGrid = DEFAULT_GRID;
+    if (Number.isInteger(saved.gridSize) && saved.gridSize >= MIN_GRID && saved.gridSize <= MAX_GRID) {
+        lastGoodGrid = saved.gridSize;
+    }
+    gridSize.value = lastGoodGrid;
+
+    if (Number.isInteger(saved.speed) && saved.speed >= 1 && saved.speed <= 60) {
+        speed = saved.speed;
+    }
+    speedSlider.value = speed;
+    speedVal.textContent = speed;
+    frameRate(speed);
+
+    if (isHex(saved.cellColor)) cellColor = saved.cellColor;
+    if (isHex(saved.bgColor)) bgColor = saved.bgColor;
+    cellColorInput.value = cellColor;
+    bgColorInput.value = bgColor;
+
+    function persist() {
+        saveSettings({
+            gridSize: lastGoodGrid,
+            speed: speed,
+            cellColor: cellColor,
+            bgColor: bgColor
+        });
+    }
+
+    // Turns whatever is typed into a valid whole number from 1 to 300.
+    // Empty / invalid input goes back to the last good value. Over 300 is capped with a warning.
+    function readGridSize() {
+        let n = parseInt(gridSize.value, 10);
+        if (isNaN(n)) {
+            // empty, or non-numeric text (a number input reports it as an empty value)
+            n = lastGoodGrid;
+            showToast(GRID_INVALID_WARNING);
+        } else if (n < MIN_GRID) {
+            n = MIN_GRID;
+            showToast(GRID_MIN_WARNING);
+        } else if (n > MAX_GRID) {
+            n = MAX_GRID;
+            showToast(GRID_WARNING);
+        }
+        gridSize.value = n;
+        lastGoodGrid = n;
+        persist();
+        return n;
+    }
+
+    gridSize.addEventListener('blur', readGridSize);
+
     function showScreen(screen) {
         mainMenu.style.display = 'none';
         newGameMenu.style.display = 'none';
@@ -282,9 +373,10 @@ function setupMenuUI() {
     });
 
     playBtn.addEventListener('click', () => {
+        const size = readGridSize();
         initGame(
             startMode,
-            parseInt(gridSize.value, 10),
+            size,
             parseInt(speedSlider.value, 10),
             cellColorInput.value,
             bgColorInput.value
@@ -302,12 +394,17 @@ function setupMenuUI() {
         speed = parseInt(speedSlider.value, 10);
         frameRate(speed);
     });
+    speedSlider.addEventListener('change', persist);   // save once the slider is released
+
     cellColorInput.addEventListener('input', () => {
         cellColor = cellColorInput.value;
     });
+    cellColorInput.addEventListener('change', persist);
+
     bgColorInput.addEventListener('input', () => {
         bgColor = bgColorInput.value;
     });
+    bgColorInput.addEventListener('change', persist);
 
     // --- HUD ---
     menuBtn.addEventListener('click', () => {
@@ -355,27 +452,27 @@ function setupMenuUI() {
 
     // Wipe the offline copy and reload so the newest files are fetched
     async function updateApp() {
-    if (!navigator.onLine) { say("You're offline. Connect to the internet to update."); return; }
-    say('Checking for updates…');
-    try {
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (!reg) { location.reload(); return; }
+        if (!navigator.onLine) { say("You're offline. Connect to the internet to update."); return; }
+        say('Checking for updates…');
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) { location.reload(); return; }
 
-        await reg.update();                       // re-fetches sw.js from the network
+            await reg.update();                       // re-fetches sw.js from the network
 
-        const waiting = reg.waiting || reg.installing;
-        if (waiting) {
-            say('Installing update…');
-            navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
-            waiting.postMessage({ type: 'SKIP_WAITING' });
-        } else {
-            say("You're on the latest version.");
+            const waiting = reg.waiting || reg.installing;
+            if (waiting) {
+                say('Installing update…');
+                navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+                waiting.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                say("You're on the latest version.");
+            }
+        } catch (err) {
+            console.error('Update failed:', err);
+            say('Update failed. Try again.');
         }
-    } catch (err) {
-        console.error('Update failed:', err);
-        say('Update failed. Try again.');
     }
-}
 
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
