@@ -149,10 +149,154 @@
   color: #e9edf2;
   border: 1px solid #2c3542;
 }
+
+/* ---------- Loading screen ---------- */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;              /* above every menu */
+  background: #0e1116;        /* opaque from the first paint, so the dead menu never shows */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .4s ease;
+}
+#loader.out { opacity: 0; pointer-events: none; }
+
+/* Content stays hidden for 250ms so fast (cached) loads never flash it */
+#loader .ld-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+#loader.show .ld-inner { opacity: 1; }
+
+#ldCanvas {
+  position: static;           /* beats the global canvas { position:absolute } rule */
+  width: min(80vw, 440px);
+  aspect-ratio: 22 / 7;
+}
+#ldText {
+  margin: 0;
+  font-size: 14px;
+  color: #9aa4b2;
+}
+#loader.failed { cursor: pointer; }
+#loader.failed #ldText { color: #e9edf2; }
 </style>
 
 </head>
 <body>
+
+  <!-- LOADING SCREEN: pure HTML/CSS/JS, does not depend on p5 or game.js -->
+  <div id="loader" role="status" aria-live="polite">
+    <div class="ld-inner">
+      <canvas id="ldCanvas"></canvas>
+      <p id="ldText">Loading…</p>
+    </div>
+  </div>
+  <script>
+  (function () {
+    // Queen Bee Shuttle: a queen bee between two blocks. Repeats every 30
+    // generations and never leaves this 22×7 box, so it loops seamlessly.
+    var W = 22, H = 7;
+    var seed = [[9,0],[7,1],[9,1],[6,2],[8,2],[5,3],[8,3],[6,4],[8,4],[7,5],[9,5],[9,6],
+                [0,3],[1,3],[0,4],[1,4],[20,3],[21,3],[20,4],[21,4]];
+    var LIVE = '#6ee7b7', DEAD = 'rgba(255,255,255,0.06)';
+
+    var el = document.getElementById('loader');
+    var text = document.getElementById('ldText');
+    var cv = document.getElementById('ldCanvas');
+    var ctx = cv.getContext('2d');
+
+    function blank() {
+      var g = [];
+      for (var y = 0; y < H; y++) { g.push(new Array(W).fill(0)); }
+      return g;
+    }
+    var grid = blank();
+    seed.forEach(function (c) { grid[c[1]][c[0]] = 1; });
+
+    // Same rules as the real game (B3/S23)
+    function step() {
+      var next = blank();
+      for (var y = 0; y < H; y++) {
+        for (var x = 0; x < W; x++) {
+          var n = 0;
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dx = -1; dx <= 1; dx++) {
+              if (dx || dy) {
+                var yy = y + dy, xx = x + dx;
+                if (yy >= 0 && yy < H && xx >= 0 && xx < W) n += grid[yy][xx];
+              }
+            }
+          }
+          next[y][x] = (n === 3 || (n === 2 && grid[y][x])) ? 1 : 0;
+        }
+      }
+      grid = next;
+    }
+
+    function draw() {
+      var dpr = window.devicePixelRatio || 1;
+      var w = cv.clientWidth, h = cv.clientHeight;
+      if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      var s = w / W;
+      for (var y = 0; y < H; y++) {
+        for (var x = 0; x < W; x++) {
+          ctx.fillStyle = grid[y][x] ? LIVE : DEAD;
+          ctx.fillRect(x * s + 1, y * s + 1, s - 2, s - 2);
+        }
+      }
+    }
+
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var running = true, last = 0;
+    draw();
+    if (!reduce) {
+      (function loop(t) {
+        if (!running) return;
+        if (t - last > 90) { step(); draw(); last = t; }   // ~11 generations per second
+        requestAnimationFrame(loop);
+      })(0);
+    }
+
+    // Reveal only if loading takes longer than 250ms, then keep it up for at least 900ms
+    var shownAt = 0;
+    var showTimer = setTimeout(function () { el.classList.add('show'); shownAt = Date.now(); }, 250);
+
+    var done = false, failed = false;
+    function fail() {
+      if (done) return;
+      failed = true;
+      el.classList.add('show', 'failed');
+      text.textContent = "Couldn't load. Tap to retry.";
+    }
+    var failTimer = setTimeout(fail, 20000);
+    el.addEventListener('click', function () { if (failed) location.reload(); });
+
+    window.loaderStage = function (msg) { if (!failed) text.textContent = msg; };
+    window.loaderFail = fail;
+
+    // Called at the end of setup(), once the menu buttons actually work
+    window.hideLoader = function () {
+      if (done) return;
+      done = true;
+      clearTimeout(failTimer);
+      clearTimeout(showTimer);
+      var wait = shownAt ? Math.max(0, 900 - (Date.now() - shownAt)) : 0;
+      setTimeout(function () {
+        el.classList.add('out');
+        setTimeout(function () { running = false; el.remove(); }, 400);
+      }, wait);
+    };
+  })();
+  </script>
 
     <!-- MAIN MENU -->
   <div id="mainMenu" class="menu-overlay">
@@ -225,8 +369,8 @@
     </p>
   </div>
 
-<script src="/p5.min.js"></script>  
-<script src="/game.js"></script>
+<script src="/p5.min.js" onload="loaderStage('Starting up…')" onerror="loaderFail()"></script>
+<script src="/game.js" onerror="loaderFail()"></script>
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));

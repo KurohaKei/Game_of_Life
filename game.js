@@ -30,6 +30,7 @@ function setup () {
     rows = 100;
     frameRate(speed);
     setupMenuUI();
+    if (window.hideLoader) hideLoader();
 }
 
 function initGame(mode, size, spd, cColor, bColor) {
