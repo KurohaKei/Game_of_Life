@@ -183,7 +183,7 @@
 }
 #loader.out { opacity: 0; pointer-events: none; }
 
-/* Content stays hidden for 250ms so fast (cached) loads never flash it */
+/* Content fades in as soon as the loader is shown */
 #loader .ld-inner {
   display: flex;
   flex-direction: column;
@@ -286,11 +286,10 @@
       })(0);
     }
 
-    // Reveal only if loading takes longer than 250ms, then keep it up for at least 900ms
-    var MIN_SHOW = 2700;              // ms the loader stays up, at minimum
+    var MIN_SHOW = 2700;              // ms the loader stays up, at minimum (one full 30-generation loop)
     var startedAt = Date.now();
 
-    el.classList.add('show');         // visible right away, no 250ms delay
+    el.classList.add('show');         // visible right away, no delay
 
     var done = false, failed = false;
     function fail() {
@@ -316,6 +315,7 @@
         setTimeout(function () { running = false; el.remove(); }, 400);
       }, wait);
     };
+  })();
   </script>
 
     <!-- MAIN MENU -->
