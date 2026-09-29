@@ -355,23 +355,27 @@ function setupMenuUI() {
 
     // Wipe the offline copy and reload so the newest files are fetched
     async function updateApp() {
-        if (!navigator.onLine) {
-            say("You're offline. Connect to the internet to update.");
-            return;
+    if (!navigator.onLine) { say("You're offline. Connect to the internet to update."); return; }
+    say('Checking for updates…');
+    try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) { location.reload(); return; }
+
+        await reg.update();                       // re-fetches sw.js from the network
+
+        const waiting = reg.waiting || reg.installing;
+        if (waiting) {
+            say('Installing update…');
+            navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+            waiting.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+            say("You're on the latest version.");
         }
-        say('Updating…');
-        try {
-            if ('serviceWorker' in navigator) {
-                const reg = await navigator.serviceWorker.getRegistration();
-                if (reg) await reg.unregister();
-            }
-            const keys = await caches.keys();
-            await Promise.all(keys.map((k) => caches.delete(k)));
-        } catch (err) {
-            console.error('Update failed:', err);
-        }
-        location.reload();
+    } catch (err) {
+        console.error('Update failed:', err);
+        say('Update failed. Try again.');
     }
+}
 
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
