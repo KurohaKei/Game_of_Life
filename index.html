@@ -287,8 +287,10 @@
     }
 
     // Reveal only if loading takes longer than 250ms, then keep it up for at least 900ms
-    var shownAt = 0;
-    var showTimer = setTimeout(function () { el.classList.add('show'); shownAt = Date.now(); }, 250);
+    var MIN_SHOW = 2700;              // ms the loader stays up, at minimum
+    var startedAt = Date.now();
+
+    el.classList.add('show');         // visible right away, no 250ms delay
 
     var done = false, failed = false;
     function fail() {
@@ -308,14 +310,12 @@
       if (done) return;
       done = true;
       clearTimeout(failTimer);
-      clearTimeout(showTimer);
-      var wait = shownAt ? Math.max(0, 900 - (Date.now() - shownAt)) : 0;
+      var wait = Math.max(0, MIN_SHOW - (Date.now() - startedAt));
       setTimeout(function () {
         el.classList.add('out');
         setTimeout(function () { running = false; el.remove(); }, 400);
       }, wait);
     };
-  })();
   </script>
 
     <!-- MAIN MENU -->
