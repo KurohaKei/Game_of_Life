@@ -184,6 +184,7 @@
 }
 .icon-btn:active { background: #262c36; }
 .icon-btn:focus-visible { outline: 2px solid #2F5BFF; outline-offset: 2px; }
+.icon-btn.left { left: 12px; right: auto; }
 
 /* ---------- Warning toast ---------- */
 #toast {
@@ -397,6 +398,12 @@
     <div class="menu-panel">
       <h1>Settings</h1>
 
+      <button id="backFromSettings" class="icon-btn left" aria-label="Back" title="Back">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 5 3 12l7 7v-4c5 0 8.5 1.5 11 5-.5-6.500-5-11-11-11z"/>
+        </svg>
+      </button>
+
       <button id="installBtn" class="icon-btn" aria-label="Install or update the app" title="Install or update">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>
@@ -421,7 +428,7 @@
 
       <p id="installHint" role="status" style="display:none; margin:0; font-size:13px; color:#9aa4b2; text-align:center;"></p>
 
-      <button id="backFromSettings" class="play-btn secondary-btn">Back</button>
+      <button id="resetDefaultsBtn" class="play-btn secondary-btn">Return to Default</button>
     </div>
   </div>
 

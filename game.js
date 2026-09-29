@@ -28,6 +28,9 @@ const STORE_KEY = 'gol.settings';
 const MIN_GRID = 1;
 const MAX_GRID = 300;
 const DEFAULT_GRID = 100;
+const DEFAULT_SPEED = 10;
+const DEFAULT_CELL = '#2F5BFF';
+const DEFAULT_BG = '#000000';
 const GRID_WARNING = 'Input more than 300 can make the game lag, Input converted to 300';
 const GRID_MIN_WARNING = 'Input less than 1 is not allowed, Input converted to 1';
 const GRID_INVALID_WARNING = 'Invalid input. Please enter a number from 1 to 300.';
@@ -279,6 +282,7 @@ function setupMenuUI() {
     const settingsBtn = document.getElementById('settingsBtn');
     const backFromNewGame = document.getElementById('backFromNewGame');
     const backFromSettings = document.getElementById('backFromSettings');
+    const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
 
     // --- Restore saved settings ---
     const saved = loadSettings();
@@ -405,6 +409,25 @@ function setupMenuUI() {
         bgColor = bgColorInput.value;
     });
     bgColorInput.addEventListener('change', persist);
+
+    // --- Return to Default ---
+    resetDefaultsBtn.addEventListener('click', () => {
+        speed = DEFAULT_SPEED;
+        speedSlider.value = speed;
+        speedVal.textContent = speed;
+        frameRate(speed);
+
+        cellColor = DEFAULT_CELL;
+        bgColor = DEFAULT_BG;
+        cellColorInput.value = cellColor;
+        bgColorInput.value = bgColor;
+
+        lastGoodGrid = DEFAULT_GRID;
+        gridSize.value = DEFAULT_GRID;
+
+        persist();
+        showToast('Settings returned to default');
+    });
 
     // --- HUD ---
     menuBtn.addEventListener('click', () => {
