@@ -1,4 +1,4 @@
-const CACHE = "gameoflife-v11"; // bump on every deploy
+const CACHE = "gameoflife-v12";
 
 const FILES = [
   "/",
@@ -8,8 +8,8 @@ const FILES = [
   "/p5.min.js",
   "/icons/icon-180.png",
   "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/maskable-512.png"
+  "/icons/blank-192.png",
+  "/icons/blank-512.png"
 ];
 
 self.addEventListener("install", (event) => {
