@@ -30,7 +30,7 @@ function setup () {
     rows = 100;
     frameRate(speed);
     setupMenuUI();
-    if (window.hideLoader) hideLoader();
+    if (window.hideLoader) hideLoader();   // menu buttons work now, so drop the loading screen
 }
 
 function initGame(mode, size, spd, cColor, bColor) {
@@ -322,47 +322,66 @@ function setupMenuUI() {
     });
 }
 
-// ---------- Install / offline download ----------
+// ---------- Install / update button (settings page) ----------
+// The button is always visible. It never hides itself, even after installing.
 (function () {
     const installBtn = document.getElementById('installBtn');
     const installHint = document.getElementById('installHint');
     if (!installBtn) return;
 
-    // Already running as an installed app? Keep the button hidden.
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true;
-    if (isStandalone) return;
-
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     let deferredPrompt = null;
 
-    // Android / Chrome / Edge: browser fires this when the app is installable
+    function say(msg) {
+        installHint.textContent = msg;
+        installHint.style.display = 'block';
+    }
+
+    // Android / Chrome / Edge: only fires while the app is not installed yet
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        installBtn.style.display = 'block';
     });
 
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
-        installBtn.style.display = 'none';
-        installHint.style.display = 'none';
+        say('Installed.');
     });
 
-    // iOS has no install prompt API, so show the button and explain manually
-    if (isIOS) installBtn.style.display = 'block';
+    // Wipe the offline copy and reload so the newest files are fetched
+    async function updateApp() {
+        if (!navigator.onLine) {
+            say("You're offline. Connect to the internet to update.");
+            return;
+        }
+        say('Updating…');
+        try {
+            if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) await reg.unregister();
+            }
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+        } catch (err) {
+            console.error('Update failed:', err);
+        }
+        location.reload();
+    }
 
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
             await deferredPrompt.userChoice;
             deferredPrompt = null;
-            installBtn.style.display = 'none';
-        } else if (isIOS) {
-            installHint.style.display = 'block';
+        } else if (isIOS && !isStandalone) {
+            say('On iPhone: tap the Share button, then "Add to Home Screen".');
+        } else {
+            updateApp();
         }
     });
 })();

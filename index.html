@@ -65,6 +65,7 @@
 }
 
 .menu-panel {
+  position: relative;
   background: #161b22;
   border: 1px solid #262c36;
   border-radius: 14px;
@@ -149,6 +150,25 @@
   color: #e9edf2;
   border: 1px solid #2c3542;
 }
+
+.icon-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #2c3542;
+  background: #1c2128;
+  color: #e9edf2;
+  cursor: pointer;
+}
+.icon-btn:active { background: #262c36; }
+.icon-btn:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 2px; }
 
 /* ---------- Loading screen ---------- */
 #loader {
@@ -340,6 +360,12 @@
     <div class="menu-panel">
       <h1>Settings</h1>
 
+      <button id="installBtn" class="icon-btn" aria-label="Install or update the app" title="Install or update">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>
+        </svg>
+      </button>
+
       <div class="menu-group">
         <label for="speedSlider">Speed: <span id="speedVal">10</span> fps</label>
         <input type="range" id="speedSlider" min="1" max="60" value="10">
@@ -356,6 +382,8 @@
         </div>
       </div>
 
+      <p id="installHint" role="status" style="display:none; margin:0; font-size:13px; color:#9aa4b2; text-align:center;"></p>
+
       <button id="backFromSettings" class="play-btn secondary-btn">Back</button>
     </div>
   </div>
@@ -363,10 +391,6 @@
   <div class="hud" id="hud" style="display:none;">
     <button id="menuBtn">☰ Back to Menu</button>
     <button id="toggleRun">⏸ Pause</button>
-    <button id="installBtn" class="play-btn secondary-btn" style="display:none;">⬇ Download for Offline</button>
-    <p id="installHint" style="display:none; margin:0; font-size:13px; color:#9aa4b2; text-align:center;">
-      On iPhone: tap the Share button, then "Add to Home Screen".
-    </p>
   </div>
 
 <script src="/p5.min.js" onload="loaderStage('Starting up…')" onerror="loaderFail()"></script>
